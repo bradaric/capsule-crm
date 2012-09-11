@@ -1,7 +1,7 @@
 {
-  "name": "node-capsule",
-  "version": "0.0.0",
-  "description": "ERROR: No README.md file found!",
+  "name": "capsule-crm",
+  "version": "0.0.1",
+  "description": "Node helper for Capsule CRM",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,7 +9,10 @@
   "dependencies": {
     "request": "*"
   },
-  "repository": "",
-  "author": "",
-  "license": "BSD"
+  "repository": {
+    "type": "git",
+    "url": "git@gitorious.org:capsule-crm/capsule-crm.git"
+  },
+  "author": "Daniel Tralamazza <tralamazza@gmail.com>",
+  "license": "MIT"
 }
