@@ -47,7 +47,8 @@ var Capsule = function(account, key) {
     'party',
     'opportunity',
     'kase',
-    'tasks'
+    'tasks',
+    'users'
   ];
   listers.forEach(function(li) {
     self[li] = function(cb) {
