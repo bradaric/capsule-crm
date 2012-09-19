@@ -3,15 +3,12 @@
   "version": "0.0.2",
   "description": "Node helper for Capsule CRM",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "dependencies": {
     "request": "*"
   },
   "repository": {
     "type": "git",
-    "url": "git@gitorious.org:capsule-crm/capsule-crm.git"
+    "url": "git://github.com/bug-buster/capsule-crm.git"
   },
   "author": "Daniel Tralamazza <tralamazza@gmail.com>",
   "license": "MIT"
