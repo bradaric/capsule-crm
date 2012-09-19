@@ -28,8 +28,10 @@ var Capsule = function(account, key) {
       },
       method: options.method || 'GET'
     };
-    if (options.data)
+    if (options.data) {
+      opt.headers['Content-Type'] = 'application/json';
       opt.json = JSON.stringify(options.data);
+    }
     request(opt, function(err, res, body) {
       if (!err && res.statusCode === 200)
         cb(null, JSON.parse(body));
