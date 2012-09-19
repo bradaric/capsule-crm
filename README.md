@@ -6,7 +6,7 @@ The official Capsule CRM API documentation can be found [here](http://developer.
 
 Create a connection and issue requests:
 
-    var capsule = require('capsule-crm').createConnectio('bugbuster', '<authentication token>');
+    var capsule = require('capsule-crm').createConnection('bugbuster', '<authentication token>');
     capsule.request({ path: '/party' }, function(err, data) {
       console.log(data);
     });
