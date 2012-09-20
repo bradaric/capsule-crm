@@ -30,13 +30,17 @@ var Capsule = function(account, key) {
     };
     if (options.data) {
       opt.headers['Content-Type'] = 'application/json';
-      opt.json = JSON.stringify(options.data);
+      opt.body = JSON.stringify(options.data);
     }
     request(opt, function(err, res, body) {
-      if (!err && res.statusCode === 200)
-        cb(null, JSON.parse(body));
-      else
-        cb(err);
+      if (err) cb(err);
+      else if (res.statusCode !== 200 && res.statusCode !== 201)
+        cb('Request returned with an invalid status code of: '+res.statusCode);
+      else {
+        // For POST requests, the body is null
+        var bodyVal = body ? JSON.parse(body) : null;
+        cb(null, res.headers, bodyVal);
+      }
     });
   };
 
@@ -54,7 +58,22 @@ var Capsule = function(account, key) {
   ];
   listers.forEach(function(li) {
     self[li] = function(cb) {
-      self.request({ path: '/' + li }, cb);
+      self.request({ path: '/' + li }, function(error, headers, body) {
+        cb(error, body);
+      });
+    };
+  });
+
+  var adders = [
+    'person',
+    'organisation'
+  ];
+  adders.forEach(function(li) {
+    self['add'+li] = function(object, cb) {
+      self.request({ path: '/' + li, method: 'POST', data: object}, function(error, headers, body) {
+        var urlArray = headers.location.split('/');
+        cb(error, urlArray[urlArray.length - 1]);
+      });
     };
   });
 };
