@@ -34,8 +34,11 @@ var Capsule = function(account, key) {
     }
     request(opt, function(err, res, body) {
       if (err) cb(err);
-      else if (res.statusCode !== 200 && res.statusCode !== 201)
-        cb('Request returned with an invalid status code of: '+res.statusCode);
+      else if (res.statusCode !== 200 && res.statusCode !== 201) {
+        var err = 'Request returned with an invalid status code of: '+res.statusCode;
+        err += "\n\n" + body;
+        cb(err);
+      }
       else {
         // For POST requests, the body is null
         var bodyVal = body ? JSON.parse(body) : null;
@@ -71,8 +74,12 @@ var Capsule = function(account, key) {
   adders.forEach(function(li) {
     self['add'+li] = function(object, cb) {
       self.request({ path: '/' + li, method: 'POST', data: object}, function(error, headers, body) {
-        var urlArray = headers.location.split('/');
-        cb(error, urlArray[urlArray.length - 1]);
+        var result = null;
+        if (!error && headers && headers.location) {
+          var urlArray = headers.location.split('/');
+          result = urlArray[urlArray.length - 1]
+        }
+        cb(error, result);
       });
     };
   });
