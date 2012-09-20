@@ -26,7 +26,8 @@ var Capsule = function(account, key) {
       headers: {
         Accept: 'application/json'
       },
-      method: options.method || 'GET'
+      method: options.method || 'GET',
+      jar: false
     };
     if (options.data) {
       opt.headers['Content-Type'] = 'application/json';
