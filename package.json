@@ -4,7 +4,8 @@
   "description": "Node helper for Capsule CRM",
   "main": "index.js",
   "dependencies": {
-    "request": "*"
+    "request": "*",
+    "async": "*"
   },
   "repository": {
     "type": "git",
