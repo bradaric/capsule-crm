@@ -68,13 +68,46 @@ var Capsule = function(account, key) {
     };
   });
 
+
+  var capitalize = function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1, string.length);
+ }
+
+  /*
+   * Helpers for APIs to create new entries
+   */
   var adders = [
     'person',
-    'organisation'
+    'organisation',
+    'task'
   ];
   adders.forEach(function(li) {
-    self['add'+li] = function(object, cb) {
+    self['add'+capitalize(li)] = function(object, cb) {
       self.request({ path: '/' + li, method: 'POST', data: object}, function(error, headers, body) {
+        var result = null;
+        if (!error && headers && headers.location) {
+          var urlArray = headers.location.split('/');
+          result = urlArray[urlArray.length - 1]
+        }
+        cb(error, result);
+      });
+    };
+  });
+
+  /*
+   * Helpers for APIs to add entries related
+   * to other entries
+   * E.g.: opportunity for an organization
+   */
+  var addersFor = [
+    'opportunity',
+    'tag',
+    'task'
+  ]
+  
+  addersFor.forEach(function(li) {
+    self['add'+capitalize(li)+'For'] = function(type, id, object, cb) {
+      self.request({ path: '/' + type + '/' + id + '/' + li, method: 'POST', data: object}, function(error, headers, body) {
         var result = null;
         if (!error && headers && headers.location) {
           var urlArray = headers.location.split('/');
