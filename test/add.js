@@ -61,15 +61,26 @@ var testAddOpportunity = function(parameter, cb) {
       "milestone": "Lead"
     }
   };
-  capsule.addOpportunityFor('organisation', parameter['organisation'], opportunity, function(err, result) {
+  var partyId = parameter['organisation'];
+  console.log("Adding opportunity for organisation: "+partyId);
+  capsule.addOpportunityFor('party', partyId, opportunity, function(err, result) {
+    console.log('Result: '+result);
     cb(err, appendResult(parameter, 'opportunity', result));
+  });
+}
+
+var testAddTag = function(parameter, cb) {
+  console.log("Adding tag for opportunity: "+parameter['opportunity']);
+  capsule.addTagFor('opportunity', parameter['opportunity'], "Test Tag", function(err, result) {
+    cb(err, appendResult(parameter, 'tag', result));
   });
 }
 
 async.waterfall([
     first(testAddPerson),
     testAddOrganisation,
-    testAddOpportunity
+    testAddOpportunity,
+    testAddTag
 ] , function (err, result) {
   if (err)
     console.log('Tests failed with error: '+err);

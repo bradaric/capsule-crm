@@ -36,7 +36,7 @@ var Capsule = function(account, key) {
     request(opt, function(err, res, body) {
       if (err) cb(err);
       else if (res.statusCode !== 200 && res.statusCode !== 201) {
-        var err = 'Request returned with an invalid status code of: '+res.statusCode;
+        var err = 'Request returned with an invalforId status code of: '+res.statusCode;
         err += "\n\n" + body;
         cb(err);
       }
@@ -94,29 +94,43 @@ var Capsule = function(account, key) {
     };
   });
 
+  var resultInLocationHeader = function(cb) {
+    return function(error, headers, body) {
+      var lastUrlElement = function(url) {
+        var urlArray = url.split('/');
+        return urlArray[urlArray.length - 1];
+      }
+      if (!error && headers && headers.location) {
+        console.log('Location: '+headers.location);
+        var r = lastUrlElement(headers.location);
+        console.log(r);
+        cb(error, lastUrlElement(headers.location));
+      }
+      else if (error) cb(error, null);
+      else cb('Unexpected query result', result);
+    }
+  }
+
   /*
    * Helpers for APIs to add entries related
    * to other entries
-   * E.g.: opportunity for an organization
+   * E.g.: opportunity for a party
    */
   var addersFor = [
     'opportunity',
-    'tag',
     'task'
   ]
-  
   addersFor.forEach(function(li) {
-    self['add'+capitalize(li)+'For'] = function(type, id, object, cb) {
-      self.request({ path: '/' + type + '/' + id + '/' + li, method: 'POST', data: object}, function(error, headers, body) {
-        var result = null;
-        if (!error && headers && headers.location) {
-          var urlArray = headers.location.split('/');
-          result = urlArray[urlArray.length - 1]
-        }
-        cb(error, result);
-      });
+    self['add'+capitalize(li)+'For'] = function(forType, forId, object, cb) {
+      self.request({ path: '/' + forType + '/' + forId + '/' + li, method: 'POST', data: object}, 
+        resultInLocationHeader(cb));
     };
   });
+
+  self.addTagFor = function(forType, forId, tagName, cb) {
+    self.request({ path: '/' + forType + '/' + forId + '/tag/' + tagName, method: 'POST'}, 
+        resultInLocationHeader(cb));
+  };
 };
 
 exports.createConnection = function(account, key) {
