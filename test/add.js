@@ -62,7 +62,7 @@ var testAddOpportunity = function(parameter, cb) {
     }
   };
   var partyId = parameter['organisation'];
-  console.log("Adding opportunity for organisation: "+partyId);
+  console.log("Adding opportunity for party: "+partyId);
   capsule.addOpportunityFor('party', partyId, opportunity, function(err, result) {
     if (!err)
       console.log('Added opportunity with id: '+result);
@@ -79,11 +79,42 @@ var testAddTag = function(parameter, cb) {
   });
 }
 
+/*
+ * XXX Warning: for this method to work, the custom fields
+ * must already exist in Capsule. They are not created automatically.
+ */
+var testAddCustomField = function(parameter, cb) {
+  var partyId = parameter['organisation'];
+  console.log("Adding custom field for party: "+partyId);
+  var now = capsule.formatDate(new Date());
+  console.log('Now: '+now);
+  var customField = {
+    'customFields': {
+      'customField': [
+        { 
+          "label": "TestLabel",
+          "text": "TestText"
+        },
+        { 
+          "label": "TestDateField",
+          "date": now
+        }
+       ]
+    }
+  };
+  capsule.setCustomFieldFor('party', partyId, customField, function(err, result) {
+    if (!err)
+      console.log('Added custom field');
+    cb(err, result);
+  });
+}
+
 async.waterfall([
     first(testAddPerson),
     testAddOrganisation,
     testAddOpportunity,
-    testAddTag
+    testAddTag,
+    testAddCustomField
 ] , function (err, result) {
   if (err)
     console.log('Tests failed with error: '+err);

@@ -36,7 +36,7 @@ var Capsule = function(account, key) {
     request(opt, function(err, res, body) {
       if (err) cb(err);
       else if (res.statusCode !== 200 && res.statusCode !== 201) {
-        var err = 'Request returned with an invalforId status code of: '+res.statusCode;
+        var err = 'Request returned with an invalid status code of: '+res.statusCode;
         err += "\n\n" + body;
         cb(err);
       }
@@ -46,6 +46,27 @@ var Capsule = function(account, key) {
         cb(null, res.headers, bodyVal);
       }
     });
+  };
+
+  /*
+   * Capsule accepts date using the ISO format but without the milliseconds.
+   * This function accordingly converts a date object to a string.
+   */
+  self.formatDate = function(d) {
+    function pad(number) {
+      var r = String(number);
+      if ( r.length === 1 ) {
+        r = '0' + r;
+      }
+      return r;
+    }
+    return d.getUTCFullYear()
+      + '-' + pad( d.getUTCMonth() + 1 )
+      + '-' + pad( d.getUTCDate() )
+      + 'T' + pad( d.getUTCHours() )
+      + ':' + pad( d.getUTCMinutes() )
+      + ':' + pad( d.getUTCSeconds() )
+      + 'Z';
   };
 
   // create simple listing calls
@@ -125,6 +146,17 @@ var Capsule = function(account, key) {
     self.request({ path: '/' + forType + '/' + forId + '/tag/' + tagName, method: 'POST'}, 
         resultInLocationHeader(cb));
   };
+
+  /*
+   * Set a custom field for an object type.
+   * XXX the custom field must already exist in Capsule,
+   * it is not automatically created.
+   */
+  self.setCustomFieldFor = function(forType, forId, object, cb) {
+    self.request({ path: '/' + forType + '/' + forId + '/customfields', method: 'PUT', data: object}, function(errors, headers, body) {
+      cb(errors, null);
+    });
+  }
 };
 
 exports.createConnection = function(account, key) {
