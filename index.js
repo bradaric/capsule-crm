@@ -74,6 +74,24 @@ var Capsule = function(account, key) {
  }
 
   /*
+   * Utility to process the result of a query in the location header,
+   * or return an error
+   */
+  var resultInLocationHeader = function(cb) {
+    return function(error, headers, body) {
+      var lastUrlElement = function(url) {
+        var urlArray = url.split('/');
+        return urlArray[urlArray.length - 1];
+      }
+      if (!error && headers && headers.location) {
+        cb(error, lastUrlElement(headers.location));
+      }
+      else if (error) cb(error, null);
+      else cb('Unexpected query result', result);
+    }
+  }
+
+  /*
    * Helpers for APIs to create new entries
    */
   var adders = [
@@ -83,36 +101,12 @@ var Capsule = function(account, key) {
   ];
   adders.forEach(function(li) {
     self['add'+capitalize(li)] = function(object, cb) {
-      self.request({ path: '/' + li, method: 'POST', data: object}, function(error, headers, body) {
-        var result = null;
-        if (!error && headers && headers.location) {
-          var urlArray = headers.location.split('/');
-          result = urlArray[urlArray.length - 1]
-        }
-        cb(error, result);
-      });
+      self.request({ path: '/' + li, method: 'POST', data: object}, resultInLocationHeader(cb));
     };
   });
 
-  var resultInLocationHeader = function(cb) {
-    return function(error, headers, body) {
-      var lastUrlElement = function(url) {
-        var urlArray = url.split('/');
-        return urlArray[urlArray.length - 1];
-      }
-      if (!error && headers && headers.location) {
-        console.log('Location: '+headers.location);
-        var r = lastUrlElement(headers.location);
-        console.log(r);
-        cb(error, lastUrlElement(headers.location));
-      }
-      else if (error) cb(error, null);
-      else cb('Unexpected query result', result);
-    }
-  }
-
   /*
-   * Helpers for APIs to add entries related
+   * Helpers for APIs to create entries related
    * to other entries
    * E.g.: opportunity for a party
    */

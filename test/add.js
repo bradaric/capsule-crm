@@ -64,7 +64,8 @@ var testAddOpportunity = function(parameter, cb) {
   var partyId = parameter['organisation'];
   console.log("Adding opportunity for organisation: "+partyId);
   capsule.addOpportunityFor('party', partyId, opportunity, function(err, result) {
-    console.log('Result: '+result);
+    if (!err)
+      console.log('Added opportunity with id: '+result);
     cb(err, appendResult(parameter, 'opportunity', result));
   });
 }
@@ -72,6 +73,8 @@ var testAddOpportunity = function(parameter, cb) {
 var testAddTag = function(parameter, cb) {
   console.log("Adding tag for opportunity: "+parameter['opportunity']);
   capsule.addTagFor('opportunity', parameter['opportunity'], "Test Tag", function(err, result) {
+    if (!err)
+      console.log('Added tag: '+result);
     cb(err, appendResult(parameter, 'tag', result));
   });
 }
