@@ -45,9 +45,9 @@ developer API. See test/add.js for full examples on how to use them
 Methods to create entries related to other entries (ex: an opportunity for a
 person):
 
-    capsule.addOpportunityFor('party', partyId, opportunity, 
+    capsule.addOpportunityFor('party', personId, opportunity, 
         function(err, data) { });
-    capsule.addTaskFor('organisation', partyId, opportunity, 
+    capsule.addTaskFor('opportunity', opportunityId, task, 
         function(err, data) { });
     capsule.addTagFor('organisation', organisationId, 'This is a tag',
         function(err, data) { }); 
