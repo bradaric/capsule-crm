@@ -1,6 +1,6 @@
 {
   "name": "capsule-crm",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Node helper for Capsule CRM",
   "main": "index.js",
   "dependencies": {
