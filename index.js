@@ -157,6 +157,24 @@ var Capsule = function(account, key) {
       cb(errors, null);
     });
   }
+  
+  /*
+   * Helpers for APIs to delete entries
+   */
+  var deleters = [
+    'party',
+    'opportunity',
+    'kase',
+    'history',
+    'task'
+  ]
+  deleters.forEach(function(li) {
+    self['delete'+capitalize(li)] = function(objectId, cb) {
+      self.request({ path: '/' + li + '/' + objectId, method: 'DELETE'}, function(errors, headers, body) {
+        cb(errors, null);
+      });
+    };
+  });
 };
 
 exports.createConnection = function(account, key) {

@@ -6,18 +6,30 @@ var token = process.argv[3];
 var capsule = require('capsule-crm').createConnection(user, token);
 
 var appendResult = function(result, name, parameter) {
-  if (result) {
-    result[name] = parameter;
-    return result;
-  }
-  else {
-    return { name: parameter};
-  }
+  if (!result)
+    result = {};
+  result[name] = parameter;
+  return result;
 }
 
 var first = function(f) {
   return function(cb) { f(null, cb); };
 }
+
+var testAddOrganisation = function(parameter, cb) {
+  console.log("Adding organisation");
+  console.log(parameter);
+  var organisation = {
+    "organisation": {
+      "name": "Test add organisation"
+    }
+  };
+  capsule.addOrganisation(organisation, function(err, result) {
+    if (!err) 
+      console.log("Added organisation with id: "+result);
+    cb(err, appendResult(parameter, 'organisation', result));
+  });
+};
 
 var testAddPerson = function(parameter, cb) {
   console.log("Adding person");
@@ -25,7 +37,7 @@ var testAddPerson = function(parameter, cb) {
     "person": {
       "firstName": 'Test',
       "lastName": 'Test',
-      "organisationName": 'NewTestCompany',
+      "organisationId": parameter['organisation'],
       "contacts": {
         "email": {
           "emailAddress": 'test@test.com'
@@ -37,20 +49,6 @@ var testAddPerson = function(parameter, cb) {
     if (!err) 
       console.log("Added person with id: "+result);
     cb(err, appendResult(parameter, 'person', result));
-  });
-};
-
-var testAddOrganisation = function(parameter, cb) {
-  console.log("Adding organisation");
-  var organisation = {
-    "organisation": {
-      "name": "Test add organisation"
-    }
-  };
-  capsule.addOrganisation(organisation, function(err, result) {
-    if (!err) 
-      console.log("Added organisation with id: "+result);
-    cb(err, appendResult(parameter, 'organisation', result));
   });
 };
 
@@ -105,16 +103,49 @@ var testAddCustomField = function(parameter, cb) {
   capsule.setCustomFieldFor('party', partyId, customField, function(err, result) {
     if (!err)
       console.log('Added custom field');
-    cb(err, result);
+    cb(err, appendResult(parameter, 'customfield', result));
+  });
+}
+
+var testDeleteOpportunity = function(parameter, cb) {
+  var opportunityId = parameter['opportunity'];
+  console.log("Deleting opportunity with id:"+opportunityId);
+  capsule.deleteOpportunity(opportunityId, function(err, result) {
+    if (!err)
+      console.log('Deleted opportunity');
+    cb(err, parameter);
+  });
+}
+
+var testDeleteOrganisation = function(parameter, cb) {
+  var organisationId = parameter['organisation'];
+  console.log("Deleting organisation with id:"+organisationId);
+  capsule.deleteParty(organisationId, function(err, result) {
+    if (!err)
+      console.log('Deleted organisation');
+    cb(err, parameter);
+  });
+}
+
+var testDeletePerson = function(parameter, cb) {
+  var personId = parameter['person'];
+  console.log("Deleting person with id:"+personId);
+  capsule.deleteParty(personId, function(err, result) {
+    if (!err)
+      console.log('Deleted person');
+    cb(err, parameter);
   });
 }
 
 async.waterfall([
-    first(testAddPerson),
-    testAddOrganisation,
+    first(testAddOrganisation),
+    testAddPerson,
     testAddOpportunity,
     testAddTag,
-    testAddCustomField
+    testAddCustomField,
+    testDeleteOpportunity,
+    testDeletePerson,
+    testDeleteOrganisation
 ] , function (err, result) {
   if (err)
     console.log('Tests failed with error: '+err);
