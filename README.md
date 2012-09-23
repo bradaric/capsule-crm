@@ -64,7 +64,7 @@ person):
     capsule.addTagFor('party', organisationId, 'This is a tag',
         function(err, data) { }); 
 
-Methods to delete entries:
+### Helper methods to delete entries:
     
     capsule.deleteParty(partyId, function(err, data)) { });
     capsule.deleteOpportunity ...
