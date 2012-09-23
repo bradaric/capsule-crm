@@ -29,8 +29,33 @@ Create a connection and issue requests:
     capsule.tasks ...
 
 ### Helper methods to create objects
-See test/add.js for examples on how to use these methods.
+
+The objects to post through these methods follow the spec from the Capsule CRM
+developer API. See test/add.js for full examples on how to use them
+
+    var organisation = {
+      "organisation": {
+        "name": "Capsule-CRM Node.js module, test organisation"
+      }
+    };
     capsule.addOrganisation(organisation, function(err, data) { });
     capsule.addPerson ...
+    capsule.addTask ...
+
+Methods to create entries related to other entries (ex: an opportunity for a
+person):
+
     capsule.addOpportunityFor('party', partyId, opportunity, 
         function(err, data) { });
+    capsule.addTaskFor('organisation', partyId, opportunity, 
+        function(err, data) { });
+    capsule.addTagFor('organisation', organisationId, 'This is a tag',
+        function(err, data) { }); 
+
+Methods to delete entries:
+    
+    capsule.deleteParty(partyId, function(err, data)) { });
+    capsule.deleteOpportunity ...
+    capsule.deleteKase ...
+    capsule.deleteHistory ...
+    capsule.deleteTask ...
