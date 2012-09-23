@@ -18,15 +18,14 @@ var first = function(f) {
 
 var testAddOrganisation = function(parameter, cb) {
   console.log("Adding organisation");
-  console.log(parameter);
   var organisation = {
     "organisation": {
-      "name": "Test add organisation"
+      "name": "Capsule-CRM Node.js module, test organisation"
     }
   };
   capsule.addOrganisation(organisation, function(err, result) {
     if (!err) 
-      console.log("Added organisation with id: "+result);
+      console.log("Organisation added with id: "+result);
     cb(err, appendResult(parameter, 'organisation', result));
   });
 };
@@ -35,19 +34,19 @@ var testAddPerson = function(parameter, cb) {
   console.log("Adding person");
   var person = {
     "person": {
-      "firstName": 'Test',
-      "lastName": 'Test',
+      "firstName": 'Capsule-CRM Node.js module',
+      "lastName": 'Test Person',
       "organisationId": parameter['organisation'],
       "contacts": {
         "email": {
-          "emailAddress": 'test@test.com'
+          "emailAddress": 'capsule-crm-node-js@test.com'
         }
       }
     }
   };
   capsule.addPerson(person, function(err, result) {
     if (!err) 
-      console.log("Added person with id: "+result);
+      console.log("Person added with id: "+result);
     cb(err, appendResult(parameter, 'person', result));
   });
 };
@@ -55,7 +54,7 @@ var testAddPerson = function(parameter, cb) {
 var testAddOpportunity = function(parameter, cb) {
   var opportunity = {
     "opportunity": {
-      "name": "Test Opportunity",
+      "name": "Capsule-CRM Node.js module, test opportunity",
       "milestone": "Lead"
     }
   };
@@ -63,16 +62,16 @@ var testAddOpportunity = function(parameter, cb) {
   console.log("Adding opportunity for party: "+partyId);
   capsule.addOpportunityFor('party', partyId, opportunity, function(err, result) {
     if (!err)
-      console.log('Added opportunity with id: '+result);
+      console.log('Opportunity added with id: '+result);
     cb(err, appendResult(parameter, 'opportunity', result));
   });
 }
 
 var testAddTag = function(parameter, cb) {
   console.log("Adding tag for opportunity: "+parameter['opportunity']);
-  capsule.addTagFor('opportunity', parameter['opportunity'], "Test Tag", function(err, result) {
+  capsule.addTagFor('opportunity', parameter['opportunity'], "Capsule-CRM Node.js, Test Tag", function(err, result) {
     if (!err)
-      console.log('Added tag: '+result);
+      console.log('Tag added: '+result);
     cb(err, appendResult(parameter, 'tag', result));
   });
 }
@@ -84,25 +83,19 @@ var testAddTag = function(parameter, cb) {
 var testAddCustomField = function(parameter, cb) {
   var partyId = parameter['organisation'];
   console.log("Adding custom field for party: "+partyId);
-  var now = capsule.formatDate(new Date());
-  console.log('Now: '+now);
   var customField = {
     'customFields': {
       'customField': [
         { 
-          "label": "TestLabel",
-          "text": "TestText"
-        },
-        { 
-          "label": "TestDateField",
-          "date": now
+          "label": "Capsule Date Field",
+          "date": capsule.formatDate(new Date())
         }
        ]
     }
   };
   capsule.setCustomFieldFor('party', partyId, customField, function(err, result) {
     if (!err)
-      console.log('Added custom field');
+      console.log('Custom field added');
     cb(err, appendResult(parameter, 'customfield', result));
   });
 }
@@ -112,7 +105,7 @@ var testDeleteOpportunity = function(parameter, cb) {
   console.log("Deleting opportunity with id:"+opportunityId);
   capsule.deleteOpportunity(opportunityId, function(err, result) {
     if (!err)
-      console.log('Deleted opportunity');
+      console.log('Opportunity deleted');
     cb(err, parameter);
   });
 }
@@ -122,7 +115,7 @@ var testDeleteOrganisation = function(parameter, cb) {
   console.log("Deleting organisation with id:"+organisationId);
   capsule.deleteParty(organisationId, function(err, result) {
     if (!err)
-      console.log('Deleted organisation');
+      console.log('Organisation deleted');
     cb(err, parameter);
   });
 }
@@ -132,7 +125,7 @@ var testDeletePerson = function(parameter, cb) {
   console.log("Deleting person with id:"+personId);
   capsule.deleteParty(personId, function(err, result) {
     if (!err)
-      console.log('Deleted person');
+      console.log('Person deleted');
     cb(err, parameter);
   });
 }
