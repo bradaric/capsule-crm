@@ -4,11 +4,15 @@ This module is a thin wrapper for the Capsule CRM Rest API.
 The official Capsule CRM API documentation can be found [here](http://developer.capsulecrm.com/v1/).
 
 #### Running the tests
+    
+    // If the module is not installed
+    sudo npm link
+    npm link capsule-crm
 
     // If your account is https://HOST.capsulecrm.com:
     node test/add.js <HOST> <API Authentication Token>
 
-Note that before running the test, you should create in Capsule a custom field
+Note that before running the tests, you should create in Capsule a custom field
 whit label 'Capsule Date Field' and type 'Date'. Otherwise the tests will fail.
 
 #### Usage
