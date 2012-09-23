@@ -49,7 +49,7 @@ person):
         function(err, data) { });
     capsule.addTaskFor('opportunity', opportunityId, task, 
         function(err, data) { });
-    capsule.addTagFor('organisation', organisationId, 'This is a tag',
+    capsule.addTagFor('party', organisationId, 'This is a tag',
         function(err, data) { }); 
 
 Methods to delete entries:
