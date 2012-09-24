@@ -35,7 +35,7 @@ var Capsule = function(account, key) {
    *   data (object to be JSONinified)
    * }
    *
-   * cb = function(err, data)
+   * cb = function(err, data, response)
    */
   self.request = function(options, cb) {
     var opt = {
@@ -57,16 +57,12 @@ var Capsule = function(account, key) {
       opt.body = JSON.stringify(options.data);
     }
     request(opt, function(err, res, body) {
-      if (err) cb(err);
-      else if (res.statusCode !== 200 && res.statusCode !== 201) {
-        var err = 'Request returned with an invalid status code of: '+res.statusCode;
-        err += "\n\n" + body;
+      if (err) {
         cb(err);
-      }
-      else {
-        // For POST requests, the body is null
-        var bodyVal = body ? JSON.parse(body) : null;
-        cb(null, res.headers, bodyVal);
+      } else if (res.statusCode !== 200 && res.statusCode !== 201) {
+        cb(new Error('Request returned with an invalid status code of: ' + res.statusCode));
+      } else {
+        cb(null, body ? JSON.parse(body) : null, res);
       }
     });
   };
@@ -78,18 +74,17 @@ var Capsule = function(account, key) {
   self.formatDate = function(d) {
     function pad(number) {
       var r = String(number);
-      if ( r.length === 1 ) {
+      if (r.length === 1)
         r = '0' + r;
-      }
       return r;
     }
-    return d.getUTCFullYear()
-      + '-' + pad( d.getUTCMonth() + 1 )
-      + '-' + pad( d.getUTCDate() )
-      + 'T' + pad( d.getUTCHours() )
-      + ':' + pad( d.getUTCMinutes() )
-      + ':' + pad( d.getUTCSeconds() )
-      + 'Z';
+    return d.getUTCFullYear() +
+      '-' + pad( d.getUTCMonth() + 1 ) +
+      '-' + pad( d.getUTCDate() ) +
+      'T' + pad( d.getUTCHours() ) +
+      ':' + pad( d.getUTCMinutes() ) +
+      ':' + pad( d.getUTCSeconds() ) +
+      'Z';
   };
 
   // create simple listing calls
@@ -106,34 +101,30 @@ var Capsule = function(account, key) {
   ];
   listers.forEach(function(li) {
     self[li] = function(cb) {
-      self.request({ path: '/' + li }, function(error, headers, body) {
-        cb(error, body);
-      });
+      self.request({ path: '/' + li }, cb);
     };
   });
 
 
   var capitalize = function(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1, string.length);
- }
+    return string && string.charAt(0).toUpperCase() + string.slice(1, string.length);
+  };
 
   /*
    * Utility to process the result of a query in the location header,
    * or return an error
    */
   var resultInLocationHeader = function(cb) {
-    return function(error, headers, body) {
-      var lastUrlElement = function(url) {
-        var urlArray = url.split('/');
-        return urlArray[urlArray.length - 1];
+    return function(error, body, res) {
+      if (error) {
+        cb(error);
+      } else if (res.headers && res.headers.location) {
+        cb(null, res.headers.location.split('/').pop(), res);
+      } else {
+        cb(new Error('Missing location header'), body, res);
       }
-      if (!error && headers && headers.location) {
-        cb(error, lastUrlElement(headers.location));
-      }
-      else if (error) cb(error, null);
-      else cb('Unexpected query result', result);
-    }
-  }
+    };
+  };
 
   /*
    * Helpers for APIs to create new entries
@@ -144,8 +135,12 @@ var Capsule = function(account, key) {
     'task'
   ];
   adders.forEach(function(li) {
-    self['add'+capitalize(li)] = function(object, cb) {
-      self.request({ path: '/' + li, method: 'POST', data: object}, resultInLocationHeader(cb));
+    self['add' + capitalize(li)] = function(data, cb) {
+      self.request({
+        path: '/' + li,
+        method: 'POST',
+        data: data
+      }, resultInLocationHeader(cb));
     };
   });
 
@@ -157,17 +152,22 @@ var Capsule = function(account, key) {
   var addersFor = [
     'opportunity',
     'task'
-  ]
+  ];
   addersFor.forEach(function(li) {
-    self['add'+capitalize(li)+'For'] = function(forType, forId, object, cb) {
-      self.request({ path: '/' + forType + '/' + forId + '/' + li, method: 'POST', data: object}, 
-        resultInLocationHeader(cb));
+    self['add' + capitalize(li) + 'For'] = function(forType, forId, data, cb) {
+      self.request({
+        path: '/' + forType + '/' + forId + '/' + li,
+        method: 'POST',
+        data: data
+      }, resultInLocationHeader(cb));
     };
   });
 
   self.addTagFor = function(forType, forId, tagName, cb) {
-    self.request({ path: '/' + forType + '/' + forId + '/tag/' + tagName, method: 'POST'}, 
-        resultInLocationHeader(cb));
+    self.request({
+      path: '/' + forType + '/' + forId + '/tag/' + tagName,
+      method: 'POST'
+    }, resultInLocationHeader(cb));
   };
 
   /*
@@ -175,12 +175,14 @@ var Capsule = function(account, key) {
    * XXX the custom field must already exist in Capsule,
    * it is not automatically created.
    */
-  self.setCustomFieldFor = function(forType, forId, object, cb) {
-    self.request({ path: '/' + forType + '/' + forId + '/customfields', method: 'PUT', data: object}, function(errors, headers, body) {
-      cb(errors, null);
-    });
-  }
-  
+  self.setCustomFieldFor = function(forType, forId, data, cb) {
+    self.request({
+      path: '/' + forType + '/' + forId + '/customfields',
+      method: 'PUT',
+      data: data
+    }, cb);
+  };
+
   /*
    * Helpers for APIs to delete entries
    */
@@ -190,12 +192,13 @@ var Capsule = function(account, key) {
     'kase',
     'history',
     'task'
-  ]
+  ];
   deleters.forEach(function(li) {
-    self['delete'+capitalize(li)] = function(objectId, cb) {
-      self.request({ path: '/' + li + '/' + objectId, method: 'DELETE'}, function(errors, headers, body) {
-        cb(errors, null);
-      });
+    self['delete' + capitalize(li)] = function(objectId, cb) {
+      self.request({
+        path: '/' + li + '/' + objectId,
+        method: 'DELETE'
+      }, cb);
     };
   });
 };
