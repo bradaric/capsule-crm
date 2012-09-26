@@ -105,6 +105,19 @@ var Capsule = function(account, key) {
     };
   });
 
+  var detailers = [
+    'organisation',
+    'party',
+    'opportunity',
+    'kase',
+    'tasks',
+    'history'
+  ];
+  detailers.forEach(function(de) {
+    self[de + 'ById'] = function(id, cb) {
+      self.request({ path: '/' + de + '/' + id }, cb);
+    };
+  });
 
   var capitalize = function(string) {
     return string && string.charAt(0).toUpperCase() + string.slice(1, string.length);
