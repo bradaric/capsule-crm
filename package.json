@@ -1,16 +1,27 @@
 {
   "name": "capsule-crm",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Node helper for Capsule CRM",
   "main": "index.js",
   "dependencies": {
-    "request": "*",
+    "request": "*"
+  },
+  "devDependencies": {
     "async": "*"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/bug-buster/capsule-crm.git"
   },
-  "author": "Daniel Tralamazza <tralamazza@gmail.com>",
+  "contributors": [
+    {
+      "name": "Daniel Tralamazza",
+      "email": "tralamazza@gmail.com"
+    },
+    {
+      "name": "Olivier Crameri",
+      "email": "olivier.crameri@bugbuster.com"
+    }
+  ],
   "license": "MIT"
 }
