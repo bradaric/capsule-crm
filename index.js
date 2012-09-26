@@ -134,10 +134,10 @@ var Capsule = function(account, key) {
     'organisation',
     'task'
   ];
-  adders.forEach(function(li) {
-    self['add' + capitalize(li)] = function(data, cb) {
+  adders.forEach(function(ad) {
+    self['add' + capitalize(ad)] = function(data, cb) {
       self.request({
-        path: '/' + li,
+        path: '/' + ad,
         method: 'POST',
         data: data
       }, resultInLocationHeader(cb));
@@ -153,13 +153,27 @@ var Capsule = function(account, key) {
     'opportunity',
     'task'
   ];
-  addersFor.forEach(function(li) {
-    self['add' + capitalize(li) + 'For'] = function(forType, forId, data, cb) {
+  addersFor.forEach(function(af) {
+    self['add' + capitalize(af) + 'For'] = function(forType, forId, data, cb) {
       self.request({
-        path: '/' + forType + '/' + forId + '/' + li,
+        path: '/' + forType + '/' + forId + '/' + af,
         method: 'POST',
         data: data
       }, resultInLocationHeader(cb));
+    };
+  });
+
+  var taggers = [
+    // TODO investigate which primitives have tags
+    'opportunity',
+    'user'
+  ];
+  taggers.forEach(function(tf) {
+    self[tf + 'Tags'] = function(id, cb) {
+      self.request({
+        path: '/' + tf + '/' + id + '/tag',
+        method: 'GET'
+      }, cb);
     };
   });
 
@@ -182,6 +196,20 @@ var Capsule = function(account, key) {
       data: data
     }, cb);
   };
+
+  var customFielders = [
+    // TODO investigate which primitives have custom fields
+    'opportunity',
+    'user'
+  ];
+  customFielders.forEach(function(cf) {
+    self[cf + 'CustomFields'] = function(id, cb) {
+      self.request({
+        path: '/' + cf + '/' + id + '/customfields',
+        method: 'GET'
+      }, cb);
+    };
+  });
 
   /*
    * Helpers for APIs to delete entries
