@@ -164,9 +164,9 @@ var Capsule = function(account, key) {
   });
 
   var taggers = [
-    // TODO investigate which primitives have tags
     'opportunity',
-    'user'
+    'party',
+    'kase'
   ];
   taggers.forEach(function(tf) {
     self[tf + 'Tags'] = function(id, cb) {
@@ -198,9 +198,9 @@ var Capsule = function(account, key) {
   };
 
   var customFielders = [
-    // TODO investigate which primitives have custom fields
     'opportunity',
-    'user'
+    'party',
+    'kase'
   ];
   customFielders.forEach(function(cf) {
     self[cf + 'CustomFields'] = function(id, cb) {
