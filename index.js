@@ -60,31 +60,11 @@ var Capsule = function(account, key) {
       if (err) {
         cb(err);
       } else if (res.statusCode !== 200 && res.statusCode !== 201) {
-        cb(new Error('Request returned with an invalid status code of: ' + res.statusCode));
+        cb(new Error('Request returned with an invalid status code of: ' + res.statusCode + ', body:' + body));
       } else {
         cb(null, body ? JSON.parse(body) : null, res);
       }
     });
-  };
-
-  /*
-   * Capsule accepts date using the ISO format but without the milliseconds.
-   * This function accordingly converts a date object to a string.
-   */
-  self.formatDate = function(d) {
-    function pad(number) {
-      var r = String(number);
-      if (r.length === 1)
-        r = '0' + r;
-      return r;
-    }
-    return d.getUTCFullYear() +
-      '-' + pad( d.getUTCMonth() + 1 ) +
-      '-' + pad( d.getUTCDate() ) +
-      'T' + pad( d.getUTCHours() ) +
-      ':' + pad( d.getUTCMinutes() ) +
-      ':' + pad( d.getUTCSeconds() ) +
-      'Z';
   };
 
   // create simple listing calls
@@ -182,19 +162,35 @@ var Capsule = function(account, key) {
     'kase'
   ];
   taggers.forEach(function(tf) {
+    // list
     self[tf + 'Tags'] = function(id, cb) {
       self.request({
         path: '/' + tf + '/' + id + '/tag',
         method: 'GET'
       }, cb);
     };
+
+    // add
+    self['add' + capitalize(tf) + 'Tag'] = function(id, tag, cb) {
+      self.request({
+        path: '/' + tf + '/' + id + '/tag/' + tag,
+        method: 'POST'
+      }, resultInLocationHeader(cb));
+    };
+
+    // remove
+    self['del' + capitalize(tf) + 'Tag'] = function(id, tag, cb) {
+      self.request({
+        path: '/' + tf + '/' + id + '/tag/' + tag,
+        method: 'DELETE'
+      }, cb);
+    };
   });
 
-  self.addTagFor = function(forType, forId, tagName, cb) {
+  self.peopleByParty = function(partyId, cb) {
     self.request({
-      path: '/' + forType + '/' + forId + '/tag/' + tagName,
-      method: 'POST'
-    }, resultInLocationHeader(cb));
+      path: '/party/' + partyId + '/people', method: 'GET'
+    }, cb);
   };
 
   /*
@@ -216,11 +212,16 @@ var Capsule = function(account, key) {
     'kase'
   ];
   customFielders.forEach(function(cf) {
+    // get
     self[cf + 'CustomFields'] = function(id, cb) {
       self.request({
         path: '/' + cf + '/' + id + '/customfields',
         method: 'GET'
       }, cb);
+    };
+    // set
+    self['set' + capitalize(cf) + 'CustomFields'] = function(id, data, cb) {
+      self.setCustomFieldFor(cf, id, data, cb);
     };
   });
 
@@ -246,4 +247,24 @@ var Capsule = function(account, key) {
 
 exports.createConnection = function(account, key) {
   return new Capsule(account, key);
+};
+
+/*
+ * Capsule accepts date using the ISO format but without the milliseconds.
+ * This function accordingly converts a date object to a string.
+ */
+exports.formatDate = function(d) {
+  function pad(number) {
+    var r = String(number);
+    if (r.length === 1)
+      r = '0' + r;
+    return r;
+  }
+  return d.getUTCFullYear() +
+    '-' + pad( d.getUTCMonth() + 1 ) +
+    '-' + pad( d.getUTCDate() ) +
+    'T' + pad( d.getUTCHours() ) +
+    ':' + pad( d.getUTCMinutes() ) +
+    ':' + pad( d.getUTCSeconds() ) +
+    'Z';
 };
