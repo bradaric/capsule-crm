@@ -21,150 +21,90 @@
  * SOFTWARE.
  */
 
-var async = require('async');
+var assert = require('assert');
+var capsuleCRM = require('..');
 
-var user = process.argv[2];
-var token = process.argv[3];
+describe('capsule-crm', function() {
+  var USER = process.env.CAPSULE_USER;
+  var TOKEN = process.env.CAPSULE_TOKEN;
 
-var capsule = require('capsule-crm').createConnection(user, token);
+  var results = {};
+  var capsule = capsuleCRM.createConnection(USER, TOKEN);
 
-var appendResult = function(result, name, parameter) {
-  if (!result)
-    result = {};
-  result[name] = parameter;
-  return result;
-}
+  function handler(_type, next, expectEmpty) {
+    return function(err, result) {
+      assert.ifError(err);
+      if (expectEmpty)
+        assert.strictEqual(result, null, 'unexpected result');
+      else
+        assert(result, 'missing result');
+      results[_type] = result;
+      next();
+    };
+  }
 
-var first = function(f) {
-  return function(cb) { f(null, cb); };
-}
-
-var testAddOrganisation = function(parameter, cb) {
-  console.log("Adding organisation");
-  var organisation = {
-    "organisation": {
-      "name": "Capsule-CRM Node.js module, test organisation"
-    }
-  };
-  capsule.addOrganisation(organisation, function(err, result) {
-    if (!err) 
-      console.log("Organisation added with id: "+result);
-    cb(err, appendResult(parameter, 'organisation', result));
+  it('should add organisation', function(done) {
+    var organisation = {
+      "organisation": {
+        "name": "Capsule-CRM Node.js module, test organisation"
+      }
+    };
+    capsule.addOrganisation(organisation, handler('organisation', done));
   });
-};
 
-var testAddPerson = function(parameter, cb) {
-  console.log("Adding person");
-  var person = {
-    "person": {
-      "firstName": 'Capsule-CRM Node.js module',
-      "lastName": 'Test Person',
-      "organisationId": parameter['organisation'],
-      "contacts": {
-        "email": {
-          "emailAddress": 'capsule-crm-node-js@test.com'
+  it('should add person', function(done) {
+    var person = {
+      "person": {
+        "firstName": 'Capsule-CRM Node.js module',
+        "lastName": 'Test Person',
+        "organisationId": results.organisation,
+        "contacts": {
+          "email": {
+            "emailAddress": 'capsule-crm-node-js@test.com'
+          }
         }
       }
-    }
-  };
-  capsule.addPerson(person, function(err, result) {
-    if (!err) 
-      console.log("Person added with id: "+result);
-    cb(err, appendResult(parameter, 'person', result));
+    };
+    capsule.addPerson(person, handler('person', done));
   });
-};
 
-var testAddOpportunity = function(parameter, cb) {
-  var opportunity = {
-    "opportunity": {
-      "name": "Capsule-CRM Node.js module, test opportunity",
-      "milestone": "Lead"
-    }
-  };
-  var partyId = parameter['organisation'];
-  console.log("Adding opportunity for party: "+partyId);
-  capsule.addOpportunityFor('party', partyId, opportunity, function(err, result) {
-    if (!err)
-      console.log('Opportunity added with id: '+result);
-    cb(err, appendResult(parameter, 'opportunity', result));
+  it('should add opportunity', function(done) {
+    var opportunity = {
+      "opportunity": {
+        "name": "Capsule-CRM Node.js module, test opportunity",
+        "milestone": "Lead"
+      }
+    };
+    var partyId = results.organisation;
+    capsule.addOpportunityFor('party', partyId, opportunity, handler('opportunity', done));
   });
-}
 
-var testAddTag = function(parameter, cb) {
-  console.log("Adding tag for opportunity: "+parameter['opportunity']);
-  capsule.addTagFor('opportunity', parameter['opportunity'], "Capsule-CRM Node.js, Test Tag", function(err, result) {
-    if (!err)
-      console.log('Tag added: '+result);
-    cb(err, appendResult(parameter, 'tag', result));
+  it('should add tag for opportunity', function(done) {
+    capsule.addOpportunityTag(results.opportunity, "Capsule-CRM Node.js, Test Tag", handler('tag', done));
   });
-}
 
-/*
- * XXX Warning: for this method to work, the custom fields
- * must already exist in Capsule. They are not created automatically.
- */
-var testAddCustomField = function(parameter, cb) {
-  var partyId = parameter['organisation'];
-  console.log("Adding custom field for party: "+partyId);
-  var customField = {
-    'customFields': {
-      'customField': [
-        { 
+  it('should add custom fields for organisation (party)', function(done) {
+    var customField = {
+      'customFields': {
+        'customField': [{
           "label": "Capsule Date Field",
-          "date": capsule.formatDate(new Date())
-        }
-       ]
-    }
-  };
-  capsule.setCustomFieldFor('party', partyId, customField, function(err, result) {
-    if (!err)
-      console.log('Custom field added');
-    cb(err, appendResult(parameter, 'customfield', result));
+          "date": capsuleCRM.formatDate(new Date())
+        }]
+      }
+    };
+    capsule.setPartyCustomFields(results.organisation, customField, handler('customfield', done, true));
   });
-}
 
-var testDeleteOpportunity = function(parameter, cb) {
-  var opportunityId = parameter['opportunity'];
-  console.log("Deleting opportunity with id:"+opportunityId);
-  capsule.deleteOpportunity(opportunityId, function(err, result) {
-    if (!err)
-      console.log('Opportunity deleted');
-    cb(err, parameter);
+  it('should delete opportunity', function(done) {
+    capsule.deleteOpportunity(results.opportunity, handler('del_opportunity', done, true));
   });
-}
 
-var testDeleteOrganisation = function(parameter, cb) {
-  var organisationId = parameter['organisation'];
-  console.log("Deleting organisation with id:"+organisationId);
-  capsule.deleteParty(organisationId, function(err, result) {
-    if (!err)
-      console.log('Organisation deleted');
-    cb(err, parameter);
+  it('should delete person', function(done) {
+    capsule.deleteParty(results.person, handler('del_person', done, true));
   });
-}
 
-var testDeletePerson = function(parameter, cb) {
-  var personId = parameter['person'];
-  console.log("Deleting person with id:"+personId);
-  capsule.deleteParty(personId, function(err, result) {
-    if (!err)
-      console.log('Person deleted');
-    cb(err, parameter);
+  it('should delete organisation', function(done) {
+    capsule.deleteParty(results.organisation, handler('del_organisation', done, true));
   });
-}
 
-async.waterfall([
-    first(testAddOrganisation),
-    testAddPerson,
-    testAddOpportunity,
-    testAddTag,
-    testAddCustomField,
-    testDeleteOpportunity,
-    testDeletePerson,
-    testDeleteOrganisation
-] , function (err, result) {
-  if (err)
-    console.log('Tests failed with error: '+err);
-  else
-    console.log('All tests passed');
 });

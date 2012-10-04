@@ -268,3 +268,4 @@ exports.formatDate = function(d) {
     ':' + pad( d.getUTCSeconds() ) +
     'Z';
 };
+

@@ -7,7 +7,10 @@
     "request": "*"
   },
   "devDependencies": {
-    "async": "*"
+    "mocha": "*"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
