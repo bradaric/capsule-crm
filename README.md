@@ -5,15 +5,19 @@ The official Capsule CRM API documentation can be found [here](http://developer.
 
 #### Running the tests
 
-    // If the module is not installed
-    sudo npm link
-    npm link capsule-crm
+**Attention!** A valid Capsule CRM account is required to perform the tests.
 
-    // If your account is https://HOST.capsulecrm.com:
-    node test/add.js <HOST> <API Authentication Token>
+Set the following environment variables with your Capsule credentials:
+
+    CAPSULE_USER
+    CAPSULE_TOKEN
+
+Run all tests:
+
+    npm test
 
 Note that before running the tests, you should create in Capsule a custom field
-whit label 'Capsule Date Field' and type 'Date'. Otherwise the tests will fail.
+whit label 'Capsule Date Field' and type 'Date'. Otherwise some tests will fail.
 
 #### Usage
 
