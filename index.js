@@ -57,13 +57,11 @@ var Capsule = function(account, key) {
       opt.body = JSON.stringify(options.data);
     }
     request(opt, function(err, res, body) {
-      if (err) {
-        cb(err);
-      } else if (res.statusCode !== 200 && res.statusCode !== 201) {
-        cb(new Error('Request returned with an invalid status code of: ' + res.statusCode + ', body:' + body));
-      } else {
-        cb(null, body ? JSON.parse(body) : null, res);
-      }
+      if (err)
+        return cb(err);
+      if (res.statusCode !== 200 && res.statusCode !== 201)
+        return cb(new Error('Request returned with an invalid status code of: ' + res.statusCode + ', body:' + body));
+      return cb(null, body ? JSON.parse(body) : null, res);
     });
   };
 
@@ -109,13 +107,14 @@ var Capsule = function(account, key) {
    */
   var resultInLocationHeader = function(cb) {
     return function(error, body, res) {
-      if (error) {
-        cb(error);
-      } else if (res.headers && res.headers.location) {
-        cb(null, res.headers.location.split('/').pop(), res);
-      } else {
-        cb(new Error('Missing location header'), body, res);
+      if (res.statusCode === 200)
+        return cb(null, null, res); // OK answer (item probably already exists)
+      if (res.statusCode === 201) {
+        if (!res.headers || !res.headers.location)
+          return cb(new Error('Missing "Location" header for response 201'), body, res);
+        return cb(null, res.headers.location.split('/').pop(), res);
       }
+      return cb(error, body, res);
     };
   };
 
@@ -171,7 +170,7 @@ var Capsule = function(account, key) {
     };
 
     // add
-    self['add' + capitalize(tf) + 'Tag'] = function(id, tag, cb) {
+    self['set' + capitalize(tf) + 'Tag'] = function(id, tag, cb) {
       self.request({
         path: '/' + tf + '/' + id + '/tag/' + tag,
         method: 'POST'
@@ -268,4 +267,3 @@ exports.formatDate = function(d) {
     ':' + pad( d.getUTCSeconds() ) +
     'Z';
 };
-
