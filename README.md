@@ -71,7 +71,6 @@ person):
 ```js
 capsule.addOpportunityFor('party', personId, opportunity, function(err, data) { });
 capsule.addTaskFor('opportunity', opportunityId, task, function(err, data) { });
-capsule.addTagFor('party', organisationId, 'This is a tag', function(err, data) { });
 ```
 
 ### Helper methods to delete entries:
