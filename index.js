@@ -56,6 +56,8 @@ var Capsule = function(account, key) {
       opt.headers['Content-Type'] = 'application/json';
       opt.body = JSON.stringify(options.data);
     }
+      console.log("SENDING REQUEST", opt);
+
     request(opt, function(err, res, body) {
       if (err)
         return cb(err);
@@ -185,6 +187,12 @@ var Capsule = function(account, key) {
       }, cb);
     };
   });
+
+  self.personByEmail = function(email, cb) {
+      self.request({
+          path: '/party/?email=' + email
+      }, cb);
+  };
 
   self.peopleByParty = function(partyId, cb) {
     self.request({
