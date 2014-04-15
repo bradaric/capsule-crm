@@ -56,7 +56,6 @@ var Capsule = function(account, key) {
       opt.headers['Content-Type'] = 'application/json';
       opt.body = JSON.stringify(options.data);
     }
-      console.log("SENDING REQUEST", opt);
 
     request(opt, function(err, res, body) {
       if (err)
