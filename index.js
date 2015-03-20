@@ -108,6 +108,8 @@ var Capsule = function(account, key) {
    */
   var resultInLocationHeader = function(cb) {
     return function(error, body, res) {
+      if (!res)
+          return cb(error, body, res);
       if (res.statusCode === 200)
         return cb(null, null, res); // OK answer (item probably already exists)
       if (res.statusCode === 201) {
