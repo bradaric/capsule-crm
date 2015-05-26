@@ -60,6 +60,8 @@ var Capsule = function(account, key) {
     request(opt, function(err, res, body) {
       if (err)
         return cb(err);
+      if (res === undefined || res === null)
+        return cb(new Error('Request returned with empty response'));
       if (res.statusCode !== 200 && res.statusCode !== 201)
         return cb(new Error('Request returned with an invalid status code of: ' + res.statusCode + ', body:' + body));
       return cb(null, body ? JSON.parse(body) : null, res);
