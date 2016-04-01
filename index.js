@@ -193,7 +193,7 @@ var Capsule = function(account, key) {
 
   self.personByEmail = function(email, cb) {
       self.request({
-          path: '/party/?email=' + email
+          path: '/party/?email=' + encodeURI(email)
       }, cb);
   };
 
