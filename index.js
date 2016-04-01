@@ -148,7 +148,8 @@ var Capsule = function(account, key) {
    */
   var addersFor = [
     'opportunity',
-    'task'
+    'task',
+    'history'
   ];
   addersFor.forEach(function(af) {
     self['add' + capitalize(af) + 'For'] = function(forType, forId, data, cb) {
