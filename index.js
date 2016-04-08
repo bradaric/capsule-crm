@@ -148,7 +148,8 @@ var Capsule = function(account, key) {
    */
   var addersFor = [
     'opportunity',
-    'task'
+    'task',
+    'history'
   ];
   addersFor.forEach(function(af) {
     self['add' + capitalize(af) + 'For'] = function(forType, forId, data, cb) {
@@ -193,8 +194,19 @@ var Capsule = function(account, key) {
 
   self.personByEmail = function(email, cb) {
       self.request({
-          path: '/party/?email=' + email
+        path: '/party',
+        search: 'email=' + encodeURIComponent(email)
       }, cb);
+  };
+
+  self.addEmailFor = function(forType, forId, newEmail, cb) {
+      data = {};
+      data[forType] = { contacts: { email: { emailAddress: newEmail } } };
+      self.request({
+        path: '/' + forType + '/' + forId,
+        method: 'POST',
+        data: data
+      }, resultInLocationHeader(cb));
   };
 
   self.peopleByParty = function(partyId, cb) {

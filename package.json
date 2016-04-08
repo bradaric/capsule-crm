@@ -1,6 +1,6 @@
 {
   "name": "capsule-crm",
-  "version": "0.0.8",
+  "version": "0.0.13",
   "description": "Node helper for Capsule CRM",
   "main": "index.js",
   "dependencies": {
@@ -24,6 +24,10 @@
     {
       "name": "Olivier Crameri",
       "email": "olivier.crameri@bugbuster.com"
+    },
+    {
+      "name": "Alex Bradaric",
+      "email": "alex@bradaric.com"
     }
   ],
   "license": "MIT"
