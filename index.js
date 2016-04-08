@@ -199,6 +199,16 @@ var Capsule = function(account, key) {
       }, cb);
   };
 
+  self.addEmailFor = function(forType, forId, newEmail, cb) {
+      data = {};
+      data[forType] = { contacts: { email: { emailAddress: newEmail } } };
+      self.request({
+        path: '/' + forType + '/' + forId,
+        method: 'POST',
+        data: data
+      }, resultInLocationHeader(cb));
+  };
+
   self.peopleByParty = function(partyId, cb) {
     self.request({
       path: '/party/' + partyId + '/people', method: 'GET'
